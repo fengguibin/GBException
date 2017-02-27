@@ -1,0 +1,23 @@
+//
+//  MyUncaughtExceptionHandler.h
+//  YangChengPai
+//
+//  Created by kitmb3 on 16/8/9.
+//  Copyright © 2016年 gzkitmb. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#define kBugCarch @"kBugCarch"
+
+// 崩溃日志
+@interface MyUncaughtExceptionHandler : NSObject
+
+
++ (void)setDefaultHandler;
+
++ (NSUncaughtExceptionHandler *)getHandler;
+
++ (void)TakeException:(NSException *) exception;
+
+@end

@@ -1,0 +1,15 @@
+//
+//  AppDelegate+ExceptionHandler.h
+//  JianLi
+//
+//  Created by 陈晓辉 on 16/10/17.
+//  Copyright © 2016年 kit. All rights reserved.
+//
+
+#import "AppDelegate.h"
+
+@interface AppDelegate (ExceptionHandler)
+
+- (void)exceptionApplication:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+
+@end

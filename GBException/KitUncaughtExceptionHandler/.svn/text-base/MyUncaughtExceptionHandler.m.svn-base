@@ -1,0 +1,150 @@
+//
+//  MyUncaughtExceptionHandler.m
+//  YangChengPai
+//
+//  Created by kitmb3 on 16/8/9.
+//  Copyright © 2016年 gzkitmb. All rights reserved.
+//
+
+#import "MyUncaughtExceptionHandler.h"
+
+
+NSString * applicationDocumentsDirectory()
+{
+    return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+}
+
+
+#pragma mark crash catch
+
+void UncaughtExceptionHandler(NSException *exception) {
+    
+    //应用版本
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    
+    NSString *version = [mainBundle objectForInfoDictionaryKey:@"internalVersion"]; 
+    
+    if(nil == version) {
+        
+        version = @"";
+        
+    }
+    //设备版本
+    //NSString *deviceModel = [UIDevice currentDevice].platform;
+    NSString *deviceModel = @"iPhone";
+    //系统版本
+    NSString *sysVersion = [UIDevice currentDevice].systemVersion;
+    //邮件主题
+    NSString *subject = [NSString stringWithFormat:@"[Crash][iOS_监理app][%@][%@][%@]", version, sysVersion, deviceModel];
+    
+    //邮箱
+    NSString *mailAddress = @"";
+    
+    //调用栈
+    NSArray *stackSysbolsArray = [exception callStackSymbols];
+    
+    //崩溃原因
+    NSString *reason = [exception reason];
+    
+    //崩溃原因
+    NSString *name = [exception name];
+    
+    
+//    NSString *body = [NSString stringWithFormat:@"========异常错误报告========\nname:%@\nreason:\n%@\n",name,reason];
+    
+    NSString *body = [NSString stringWithFormat:@"========异常错误报告========\nname:%@\nreason:\n%@\n callStackSymbols:\n%@",name,reason, [stackSysbolsArray componentsJoinedByString:@"\n"]];
+    
+//    NSString *body = [NSString stringWithFormat:@"<br>----------------------------------------------------<br>手机信息:%@<br><br>----------------------------------------------------<br>崩溃标识:<br><br>%@<br>----------------------------------------------------<br>崩溃原因:<br><br>%@<br>----------------------------------------------------<br>崩溃详情:<br><br>%@<br>",
+//                      
+//                      subject,
+//                      
+//                      name,
+//                      
+//                      reason,
+//                      
+//                      [stackSysbolsArray componentsJoinedByString:@"<br>"]];
+    
+    
+    [[NSUserDefaults standardUserDefaults] setObject:body forKey:kBugCarch];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    //邮件正文
+    /*
+    NSString *body = [NSString stringWithFormat:@"<br>----------------------------------------------------<br>当你看到这个页面的时候别慌,简单的描述下刚才的操作,然后邮件我<br><br>----------------------------------------------------<br>崩溃标识:<br><br>%@<br>----------------------------------------------------<br>崩溃原因:<br><br>%@<br>----------------------------------------------------<br>崩溃详情:<br><br>%@<br>",
+                      
+                      name,
+                      
+                      reason,
+                      
+                      [stackSysbolsArray componentsJoinedByString:@"<br>"]];
+    
+    //邮件url
+    NSString *urlStr = [NSString stringWithFormat:@"mailto:%@?subject=%@&body=%@",
+                        
+                        mailAddress,subject,body];
+    
+    
+    
+    NSURL *url = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    [[UIApplication sharedApplication] openURL:url];
+     */
+}
+
+/*
+void UncaughtExceptionHandler(NSException * exception)
+{
+    NSArray * arr = [exception callStackSymbols];
+    NSString * reason = [exception reason];
+    NSString * name = [exception name];
+    NSString * url = [NSString stringWithFormat:@"========异常错误报告========\nname:%@\nreason:\n%@\ncallStackSymbols:\n%@",name,reason,[arr componentsJoinedByString:@"\n"]];
+    NSString * path = [applicationDocumentsDirectory() stringByAppendingPathComponent:@"Exception.txt"];
+    [url writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    
+//
+//    NSString *urlStr = [NSString stringWithFormat:@"mailto:wy@91goal.com?subject=客户端bug报告&body=很抱歉应用出现故障,感谢您的配合!发送这封邮件可协助我们改善此应用<br>"
+//                        "错误详情:<br>%@<br>--------------------------<br>%@<br>---------------------<br>%@",
+//                        name,reason,[arr componentsJoinedByString:@"<br>"]];
+//    NSLog(@"冯贵宾========================================%@", urlStr);
+//    
+//    NSURL *url2 = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    [[UIApplication sharedApplication] openURL:url2];
+    
+}
+ */
+
+@implementation MyUncaughtExceptionHandler
+
+-(NSString *)applicationDocumentsDirectory
+{
+    return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+}
+
++ (void)setDefaultHandler
+{
+    NSSetUncaughtExceptionHandler(&UncaughtExceptionHandler);
+}
+
++ (NSUncaughtExceptionHandler *)getHandler
+{
+    return NSGetUncaughtExceptionHandler();
+}
+
++ (void)TakeException:(NSException *)exception
+{
+    NSArray * arr = [exception callStackSymbols];
+    NSString * reason = [exception reason];
+    NSString * name = [exception name];
+    NSString * url = [NSString stringWithFormat:@"========异常错误报告========\nname:%@\nreason:\n%@\ncallStackSymbols:\n%@",name,reason,[arr componentsJoinedByString:@"\n"]];
+    NSString * path = [applicationDocumentsDirectory() stringByAppendingPathComponent:@"Exception.txt"];
+    NSLog(@"冯爷-------------------%@",  path);
+    [url writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    
+   // NSLog(@"%s:%d %@", __FUNCTION__, __LINE__, url);
+}
+
+
+
+
+
+@end

@@ -1,0 +1,134 @@
+//
+//  AppDelegate+ExceptionHandler.m
+//  JianLi
+//
+//  Created by 陈晓辉 on 16/10/17.
+//  Copyright © 2016年 kit. All rights reserved.
+//
+
+#import "AppDelegate+ExceptionHandler.h"
+
+#import "UncaughtExceptionHandler.h"
+
+#import "MyUncaughtExceptionHandler.h"
+
+#import <sys/utsname.h>
+
+@implementation AppDelegate (ExceptionHandler)
+
+
+- (void)exceptionApplication:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+//    InstallUncaughtExceptionHandler();
+    
+//    UncaughtExceptionHandler *excetion = [[UncaughtExceptionHandler alloc]init];
+//    [excetion startupProcessWithApplication:application andOptions:launchOptions];
+    
+    
+    [MyUncaughtExceptionHandler setDefaultHandler];
+    
+    /*
+    // 发送崩溃日志
+    NSString *bugPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *dataPath = [bugPath stringByAppendingPathComponent:@"Exception.txt"];
+    NSData *data = [NSData dataWithContentsOfFile:dataPath];
+    if (data != nil) {
+        [self sendExceptionLogWithData:data path:dataPath];
+    }
+   */
+    
+    [self sendExceptionLog];
+    
+//    [self getExceptionLog];
+}
+
+
+
+#pragma mark - 获取崩溃日志
+- (void)getExceptionLog
+{
+    
+    NSDictionary *dic = [[NSDictionary alloc]initWithObjectsAndKeys:
+                         @"getErrorList", @"action",
+                         @"0", @"start",
+                         @"100", @"limit",
+                         nil];
+    
+    [CommonServices postRequestWithUrlSring:RequestBugLogURL paramDic:dic succeed:^(NSString *returnStr, NSDictionary *returnDic, NSMutableArray *returnArr) {
+        
+        
+    } failed:^(NSString *returnStr, NSError *error) {
+        
+    } networkFailed:^(NSString *returnStr, NSError *error) {
+        
+    }];
+    
+}
+
+#pragma mark - 发送崩溃日志
+- (void)sendExceptionLog
+{
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:kBugCarch]) {
+        
+        struct utsname systemInfo;
+        uname(&systemInfo);
+        NSString *platform = [NSString stringWithCString:systemInfo.machine encoding:NSASCIIStringEncoding];
+        
+        NSString *errorSystem = [UIDevice currentDevice].systemVersion;
+        
+        NSString *errorString = [[NSUserDefaults standardUserDefaults] objectForKey:kBugCarch];
+        
+        NSString *errorVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        
+        if (errorString.length > 3000) {
+            errorString = [errorString substringToIndex:2900];
+        }
+        
+        NSDictionary *dic = [[NSDictionary alloc]initWithObjectsAndKeys:
+                             @"sendError", @"action",
+                             errorString, @"errorString",
+                             platform, @"errorPhone",
+                             errorSystem, @"errorSystem",
+                             errorVersion, @"errorVersion",
+                             nil];
+        
+        [CommonServices postRequestWithUrlSring:RequestBugLogURL paramDic:dic succeed:^(NSString *returnStr, NSDictionary *returnDic, NSMutableArray *returnArr) {
+            
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kBugCarch];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+        } failed:^(NSString *returnStr, NSError *error) {
+            
+        } networkFailed:^(NSString *returnStr, NSError *error) {
+            
+        }];
+        
+    }
+}
+
+#pragma mark - 发送崩溃日志
+- (void)sendExceptionLogWithData:(NSData *)data path:(NSString *)path
+{
+    /*
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer.timeoutInterval = 5.0f;
+    //告诉AFN，支持接受 text/xml 的数据
+    [AFJSONResponseSerializer serializer].acceptableContentTypes = [NSSet setWithObject:@"text/plain"];
+    NSString *urlString = @"http://202.105.45.194:90/ycpFileSystem/utils/logService/uploadMobileLog.do";
+    
+    [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        [formData appendPartWithFileData:data name:@"file" fileName:@"Exception.txt" mimeType:@"txt"];
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
+        // 删除文件
+        NSFileManager *fileManger = [NSFileManager defaultManager];
+        [fileManger removeItemAtPath:path error:nil];
+        
+    } failure:^(NSURLSessionDataTask * _Nonnull task, NSError * _Nonnull error) {
+        
+        
+    }];
+    */
+    
+}
+
+@end
