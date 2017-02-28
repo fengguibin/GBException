@@ -1,5 +1,4 @@
 # GBException
-Capture the app crash information, popup hint user, will collapse information sent to the server.
 GBException is used to capture the app crash information, pop-up prompt the user, will collapse information sent to the server. 
 
 ## How To Use In Self Projects
